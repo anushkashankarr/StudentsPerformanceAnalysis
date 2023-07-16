@@ -1,358 +1,290 @@
-code
-------------------
+# -----------------FINDING EFFECTS OF VARIOUS EVENTS ON CHILD'S PERFORMANCE ----------------------
 
 
-VIEWING AND CLEANING THE DATA
+# Load required packages
+library(dplyr)
+library(ggplot2)
 
+# Read the data
 student <- read.csv("~/R datasets/StudentsPerformance.csv")
 
+# Data cleaning and manipulation
+student <- student %>% rename(parental_education = parental.level.of.education,
+                              math_score = math.score,
+                              writing_score = writing.score,
+                              reading_score = reading.score,
+                              ethnicity = race.ethnicity,
+                              test_prep_course = test.preparation.course)
 
-#Inspect the data frame.
+# Data exploration
 head(student)
-
-
-#View the column names.
 colnames(student)
-
-#View summary of the data frame.
 summary(student)
-
-#View data types in the data frame.
 str(student)
 
-#Rename the columns in the student data frame.
-student <- student%>%rename(parental_education = parental.level.of.education, math_score = math.score, writing_score = writing.score, reading_score = reading.score, ethnicity = race.ethnicity, test_prep_course = test.preparation.course)
-#View the updated column names in the student data frame.
-colnames(student)
-
-#Print the total number of missing values in the data frame.
+# Missing values and duplicates
 sum(is.na(student))
-
-#Create a variable storing the amount of duplicates in the data frame.
-duplicates <- student%>%duplicated()
-#Displays how many duplicates are present in a table. If a value is not a duplicate, it is placed in 'FALSE'. If the value is a duplicate, it is placed in 'TRUE'.
-duplicates_count <- duplicates%>%table()
+duplicates <- student %>% duplicated()
+duplicates_count <- table(duplicates)
 duplicates_count
 
-#The total number of males and females in the data frame.
-count_gender <- student%>%count(gender)
+# Gender analysis
+count_gender <- student %>% count(gender)
+freq_gender <- prop.table(table(student$gender))
 count_gender
-
-#Create a frequency table to show the percentage of each gender in the data frame.
-freq_gender <- table(student$gender)/length(student$gender)
 freq_gender
 
-
-#The total number of each ethnicity group in the data frame.
-count_ethnicity <- student%>%count(ethnicity)
+# Ethnicity analysis
+count_ethnicity <- student %>% count(ethnicity)
+freq_ethnicity <- prop.table(table(student$ethnicity))
 count_ethnicity
-
-
-#Creates a frequency table to show the percentage of each ethnicity group in the data frame.
-freq_ethnicity <- table(student$ethnicity)/length(student$ethnicity)
 freq_ethnicity
 
-#The total number of each parental highest education group in the data frame.
-count_parental_education <- student%>%count(parental_education)
+# Parental education analysis
+count_parental_education <- student %>% count(parental_education)
+freq_parental <- prop.table(table(student$parental_education))
 count_parental_education
-
-#Creates a frequency table to show the percentage of each parental highest education group in the data frame.
-freq_parental <- table(student$parental_education)/length(student$parental_education)
 freq_parental
 
-#The total number of students who took the test prep course.
-count_test_prep <- student%>%count(test_prep_course)
+# Test prep analysis
+count_test_prep <- student %>% count(test_prep_course)
+freq_test <- prop.table(table(student$test_prep_course))
 count_test_prep
-
-#Creates a frequency table to show the percentage of each parental highest education group in the data frame.
-freq_test <- table(student$test_prep_course)/length(student$test_prep_course)
 freq_test
 
-#The total number of students in each lunch group.
-count_lunch <- student%>%count(lunch)
+# Lunch analysis
+count_lunch <- student %>% count(lunch)
+freq_lunch <- prop.table(table(student$lunch))
 count_lunch
-
-#Creates a frequenct table to show the percentage of each lunch group.
-freq_lunch <- table(student$lunch)/length(student$lunch)
 freq_lunch
 
+# Boxplots and outliers
 boxplot(student$reading_score)
-
 boxplot(student$writing_score)
-
 boxplot(student$math_score)
-
 which.min(student$math_score)
-
-#View student 60 to see their overall test results and determine if they're an outlier.
 print(student[60, ])
-
 range(student$reading_score)
-
 range(student$writing_score)
 range(student$math_score)
-
-#Remove the 0 test score from the data set. Will also remove the student completely from the data frame.
-student<- subset(student, math_score != 0)
-#Counts the amount of rows in the data to see if the outlier was properly removed.
+student <- subset(student, math_score != 0)
 count(student)
-
-#Count the amount in each gender. Compared to the original count, the female count lowered by 1.
-count_gender <- student%>%count(gender)
+count_gender <- student %>% count(gender)
 count_gender
 
+# Distribution analysis
+ggplot(data = student, aes(reading_score)) +
+  geom_histogram(aes(y = ..density..), color = "darkblue", fill = "lightblue", binwidth = 5) +
+  labs(title = "Distribution of Reading Scores", x = "Reading Score", y = "Total Count") +
+  geom_density(alpha = 0.3, color = "skyblue", fill = "skyblue")
 
+ggplot(data = student, aes(writing_score)) +
+  geom_histogram(aes(y = ..density..), color = "darkgreen", fill = "lightgreen", binwidth = 5) +
+  labs(title = "Distribution of Writing Scores", x = "Writing Score", y = "Total Count") +
+  geom_density(alpha = 0.2, color = "darkgreen", fill = "lightgreen")
 
-VIEWING THE SIATRIBUTION OF THE DATA A ONG SCORES.
+ggplot(data = student, aes(math_score)) +
+  geom_histogram(aes(y = ..density..), color = "darkred", fill = "red", binwidth = 5) +
+  labs(title = "Distribution of Math Scores", x = "Math Score", y = "Total Count") +
+  geom_density(alpha = 0.2, color = "black", fill = "red")
 
-#Histogram displaying the distribution of the Reading Scores for the data frame
-ggplot(data = student, aes(reading_score))+geom_histogram(aes(y = ..density..), color = "darkblue", fill = "lightblue", binwidth = 5)+labs(title = "Distribution of Reading Scores", x = "Reading Score", y = "Total Count")+geom_density(alpha = 0.3, color = "skyblue", fill = "skyblue")
+ggplot(student, aes(x = reading_score)) +
+  geom_histogram(aes(color = gender, fill = gender), position = "identity", binwidth = 5, alpha = 0.4) +
+  scale_color_manual(values = c("#00AFBB", "#E7B800")) +
+  scale_fill_manual(values = c("#00AFBB", "#E7B800")) +
+  labs(title = "Distribution of Reading Scores Between Gender", x = "Reading Score", y = "Total Count")
 
-#Histogram displaying the distribution of the Writing Scores for the data frame
-ggplot(data = student, aes(writing_score))+geom_histogram(aes(y = ..density..), color = "darkgreen", fill = "lightgreen", binwidth = 5)+labs(title = "Distribution of Writing Scores", x = "Writing Score", y = "Total Count")+geom_density(alpha = 0.2, color = "darkgreen", fill = "lightgreen")
+ggplot(student, aes(x = writing_score)) +
+  geom_histogram(aes(color = gender, fill = gender), position = "identity", binwidth = 5, alpha = 0.4) +
+  scale_color_manual(values = c("#00AFBB", "#E7B800")) +
+  scale_fill_manual(values = c("#00AFBB", "#E7B800")) +
+  labs(title = "Distribution of Writing Scores Between Gender", x = "Writing Score", y = "Total Count")
 
-#Histogram displaying the distribution of the Math Scores for the data frame
-ggplot(data = student, aes(math_score))+geom_histogram(aes(y = ..density..), color = "darkred", fill = "red", binwidth = 5)+labs(title = "Distribution of Math Scores", x = "Math Score", y = "Total Count")+geom_density(alpha = 0.2, color = "black", fill = "red")
+ggplot(student, aes(x = math_score)) +
+  geom_histogram(aes(color = gender, fill = gender), position = "identity", binwidth = 5, alpha = 0.4) +
+  scale_color_manual(values = c("#00AFBB", "#E7B800")) +
+  scale_fill_manual(values = c("#00AFBB", "#E7B800")) +
+  labs(title = "Distribution of Math Scores Between Gender", x = "Math Score", y = "Total Count")
 
+ggplot(student, aes(gender, reading_score, fill = gender, color = gender)) +
+  geom_boxplot() +
+  labs(title = "Reading Score for Each Gender", x = "Gender", y = "Reading Score") +
+  scale_fill_manual(values = c("purple", "lightblue")) +
+  scale_color_manual(values = c("black", "gray5"))
 
+ggplot(student, aes(gender, writing_score, fill = gender, color = gender)) +
+  geom_boxplot() +
+  labs(title = "Writing Score for Each Gender", x = "Gender", y = "Reading Score") +
+  scale_fill_manual(values = c("purple", "lightblue")) +
+  scale_color_manual(values = c("black", "gray5"))
 
-#Histogram displaying distribution of reading scores between gender
-ggplot(student, aes(x = reading_score))+geom_histogram(aes(color = gender, fill = gender), position = "identity", binwidth = 5, alpha = 0.4)+scale_color_manual(values = c("#00AFBB", "#E7B800"))+scale_fill_manual(values = c("#00AFBB", "#E7B800"))+labs(title = "Distribution of Reading Scores Between Gender", x = "Reading Score", y = "Total Count")
+ggplot(student, aes(gender, math_score, fill = gender, color = gender)) +
+  geom_boxplot() +
+  labs(title = "Math Score for Each Gender", x = "Gender", y = "Math Score") +
+  scale_fill_manual(values = c("purple", "lightblue")) +
+  scale_color_manual(values = c("black", "gray5"))
 
+ggplot(student, aes(ethnicity, reading_score, fill = ethnicity, color = ethnicity)) +
+  geom_boxplot() +
+  labs(title = "Reading Score for Each Ethnicity Group", x = "Ethnicity", y = "Reading Score") +
+  scale_fill_manual(values = c("blue", "red", "yellow", "orange", "purple")) +
+  scale_color_manual(values = c("hotpink", "purple3", "black", "royalblue3", "violetred1"))
 
+ggplot(student, aes(ethnicity, writing_score, fill = ethnicity, color = ethnicity)) +
+  geom_boxplot() +
+  labs(title = "Writing Score for Each Ethnicity Group", x = "Ethnicity", y = "Writing Score") +
+  scale_fill_manual(values = c("blue", "red", "yellow", "orange", "purple")) +
+  scale_color_manual(values = c("hotpink", "purple3", "black", "royalblue3", "violetred1"))
 
-
-#Histogram displaying distribution of writing scores between gender
-ggplot(student, aes(x = writing_score))+geom_histogram(aes(color = gender, fill = gender), position = "identity", binwidth = 5, alpha = 0.4)+scale_color_manual(values = c("#00AFBB", "#E7B800"))+scale_fill_manual(values = c("#00AFBB", "#E7B800"))+labs(title = "Distribution of Writing Scores Between Gender", x = "Writing Score", y = "Total Count")
-
-
-
-
-
-#Histogram displaying distribution of math scores between gender
-ggplot(student, aes(x = math_score))+geom_histogram(aes(color = gender, fill = gender), position = "identity", binwidth = 5, alpha = 0.4)+scale_color_manual(values = c("#00AFBB", "#E7B800"))+scale_fill_manual(values = c("#00AFBB", "#E7B800"))+labs(title = "Distribution of Math Scores Between Gender", x = "Math Score", y = "Total Count")
-
-
-
-
-
-
-
-Boxplots of Each Variable
-
-ggplot(student, aes(gender, reading_score, fill = gender, color = gender))+geom_boxplot()+labs(title = "Reading Score for Each Gender", x = "Gender", y = "Reading Score")+scale_fill_manual(values = c("purple", "lightblue"))+scale_color_manual(values = c("black", "gray5"))
-
-
-
-ggplot(student, aes(gender, writing_score, fill = gender, color = gender))+geom_boxplot()+labs(title = "Writing Score for Each Gender", x = "Gender", y = "Reading Score")+scale_fill_manual(values = c("purple", "lightblue"))+scale_color_manual(values = c("black", "gray5"))
-
-
-ggplot(student, aes(gender, math_score, fill = gender, color = gender))+geom_boxplot()+labs(title = "Math Score for Each Gender", x = "Gender", y = "Math Score")+scale_fill_manual(values = c("purple", "lightblue"))+scale_color_manual(values = c("black", "gray5"))
-
-ggplot(student, aes(ethnicity, reading_score, fill = ethnicity, color = ethnicity))+geom_boxplot()+labs(title = "Reading Score for Each Ethnicity Group", x = "Ethnicity", y = "Reading Score")+scale_fill_manual(values = c("blue", "red", "yellow", "orange", "purple"))+scale_color_manual(values = c("hotpink", "purple3", "black", "royalblue3", "violetred1"))
-
-
-
-ggplot(student, aes(ethnicity, writing_score, fill = ethnicity, color = ethnicity))+geom_boxplot()+labs(title = "Writing Score for Each Ethnicity Group", x = "Ethnicity", y = "Writing Score")+scale_fill_manual(values = c("blue", "red", "yellow", "orange", "purple"))+scale_color_manual(values = c("hotpink", "purple3", "black", "royalblue3", "violetred1"))
-
-
-
-
-Mean and Standard Deviation Table for Each Variable
-
-
-
-gender_table <- student%>%group_by(gender)%>%summarize(reading_mean = mean(reading_score, na.rm = TRUE), writing_mean = mean(writing_score, na.rm = TRUE), math_mean = mean(math_score, na.rm = TRUE), reading_sd = sd(reading_score), writing_sd = sd(writing_score), sd_math = sd(math_score))
+# Mean and standard deviation tables
+gender_table <- student %>%
+  group_by(gender) %>%
+  summarize(reading_mean = mean(reading_score, na.rm = TRUE),
+            writing_mean = mean(writing_score, na.rm = TRUE),
+            math_mean = mean(math_score, na.rm = TRUE),
+            reading_sd = sd(reading_score),
+            writing_sd = sd(writing_score),
+            math_sd = sd(math_score))
 
 gender_table
 
-
-#Find the mean and standard deviation of the reading, writing, and math scores for each ethnicity group
-ethnic_table <- student%>%group_by(ethnicity)%>%summarize(reading_mean = mean(reading_score, na.rm = TRUE), writing_mean = mean(writing_score, na.rm = TRUE), math_mean = mean(math_score, na.rm = TRUE), reading_sd = sd(reading_score), writing_sd = sd(writing_score), sd_math = sd(math_score))
+ethnic_table <- student %>%
+  group_by(ethnicity) %>%
+  summarize(reading_mean = mean(reading_score, na.rm = TRUE),
+            writing_mean = mean(writing_score, na.rm = TRUE),
+            math_mean = mean(math_score, na.rm = TRUE),
+            reading_sd = sd(reading_score),
+            writing_sd = sd(writing_score),
+            math_sd = sd(math_score))
 
 ethnic_table
 
-
-
-
-
-
-
-education_table <- student%>%group_by(parental_education)%>%summarize(reading_mean = mean(reading_score, na.rm = TRUE), writing_mean = mean(writing_score, na.rm = TRUE), math_mean = mean(math_score, na.rm = TRUE), reading_sd = sd(reading_score), writing_sd = sd(writing_score), sd_math = sd(math_score))
+education_table <- student %>%
+  group_by(parental_education) %>%
+  summarize(reading_mean = mean(reading_score, na.rm = TRUE),
+            writing_mean = mean(writing_score, na.rm = TRUE),
+            math_mean = mean(math_score, na.rm = TRUE),
+            reading_sd = sd(reading_score),
+            writing_sd = sd(writing_score),
+            math_sd = sd(math_score))
 
 education_table
 
-
-
-
-
-lunch_table <- student%>%group_by(lunch)%>%summarize(reading_mean = mean(reading_score, na.rm = TRUE), writing_mean = mean(writing_score, na.rm = TRUE), math_mean = mean(math_score, na.rm = TRUE), reading_sd = sd(reading_score), writing_sd = sd(writing_score), sd_math = sd(math_score))
+lunch_table <- student %>%
+  group_by(lunch) %>%
+  summarize(reading_mean = mean(reading_score, na.rm = TRUE),
+            writing_mean = mean(writing_score, na.rm = TRUE),
+            math_mean = mean(math_score, na.rm = TRUE),
+            reading_sd = sd(reading_score),
+            writing_sd = sd(writing_score),
+            math_sd = sd(math_score))
 
 lunch_table
 
-
-
-
-
-
-test_prep_table <- student%>%group_by(test_prep_course)%>%summarize(reading_mean = mean(reading_score, na.rm = TRUE), writing_mean = mean(writing_score, na.rm = TRUE), math_mean = mean(math_score, na.rm = TRUE), reading_sd = sd(reading_score), writing_sd = sd(writing_score), sd_math = sd(math_score))
+test_prep_table <- student %>%
+  group_by(test_prep_course) %>%
+  summarize(reading_mean = mean(reading_score, na.rm = TRUE),
+            writing_mean = mean(writing_score, na.rm = TRUE),
+            math_mean = mean(math_score, na.rm = TRUE),
+            reading_sd = sd(reading_score),
+            writing_sd = sd(writing_score),
+            math_sd = sd(math_score))
 
 test_prep_table
 
-
-
-
-
-ethnic_gender_table <- student%>%group_by(ethnicity, gender)%>%summarize(reading_mean = mean(reading_score, na.rm = TRUE), writing_mean = mean(writing_score, na.rm = TRUE), math_mean = mean(math_score, na.rm = TRUE), reading_sd = sd(reading_score), writing_sd = sd(writing_score), sd_math = sd(math_score))
+ethnic_gender_table <- student %>%
+  group_by(ethnicity, gender) %>%
+  summarize(reading_mean = mean(reading_score, na.rm = TRUE),
+            writing_mean = mean(writing_score, na.rm = TRUE),
+            math_mean = mean(math_score, na.rm = TRUE),
+            reading_sd = sd(reading_score),
+            writing_sd = sd(writing_score),
+            math_sd = sd(math_score))
 
 ethnic_gender_table
 
+test_lunch_table <- student %>%
+  group_by(test_prep_course, lunch) %>%
+  summarize(reading_mean = mean(reading_score, na.rm = TRUE),
+            writing_mean = mean(writing_score, na.rm = TRUE),
+            math_mean = mean(math_score, na.rm = TRUE),
+            reading_sd = sd(reading_score),
+            writing_sd = sd(writing_score),
+            math_sd = sd(math_score))
 
-
-
-
-test_lunch_table <- student%>%group_by(test_prep_course, lunch)%>%summarize(reading_mean = mean(reading_score, na.rm = TRUE), writing_mean = mean(writing_score, na.rm = TRUE), math_mean = mean(math_score, na.rm = TRUE), reading_sd = sd(reading_score), writing_sd = sd(writing_score), sd_math = sd(math_score))
 test_lunch_table
 
+# T-testing
+t_test <- t.test(reading_score ~ gender, data = student)
+t_test
 
-
-
-
-
-
-
-
-
-
-T-Testing
-t.test(reading_score ~ gender, data = student)
-
-
-
-ANOVA TESTING
+# ANOVA testing
 parent_aov <- aov(reading_score ~ parental_education, data = student)
-
 summary(parent_aov)
 
-
-
-
-Simple Linear Regression
-
-ggplot(student, aes(x = reading_score, y = writing_score, color = gender)) + geom_point() + geom_smooth(aes(group = gender),method = "lm") + labs(x = "Reading Score", y = "Writing Score")
-
-
+# Simple Linear Regression
+ggplot(student, aes(x = reading_score, y = writing_score, color = gender)) +
+  geom_point() +
+  geom_smooth(aes(group = gender), method = "lm") +
+  labs(x = "Reading Score", y = "Writing Score")
 
 male_fit_read_write <- lm(writing_score ~ reading_score, subset = gender == "male", data = student)
-
 summary(male_fit_read_write)
 
-
 female_fit_read_write <- lm(writing_score ~ reading_score, subset = gender == "female", data = student)
-
 summary(female_fit_read_write)
 
-
-ggplot(student, aes(x = reading_score, y = math_score, color = gender))+geom_point() + geom_smooth(aes(group = gender), method = "lm") + labs(x = "Reading Score", y = "Math Score")
-
-
+ggplot(student, aes(x = reading_score, y = math_score, color = gender)) +
+  geom_point() +
+  geom_smooth(aes(group = gender), method = "lm") +
+  labs(x = "Reading Score", y = "Math Score")
 
 male_fit_math_read <- lm(math_score ~ reading_score, subset = gender == "male", data = student)
-
 summary(male_fit_math_read)
 
-
 female_math_read <- lm(math_score ~ reading_score, subset = gender == "female", data = student)
-
 summary(female_math_read)
 
-
-ggplot(student, aes(x = writing_score, y = math_score, color = gender))+geom_point() + geom_smooth(aes(group = gender), method = "lm") + labs(x = "Writing Score", y = "Math Score")
-
+ggplot(student, aes(x = writing_score, y = math_score, color = gender)) +
+  geom_point() +
+  geom_smooth(aes(group = gender), method = "lm") +
+  labs(x = "Writing Score", y = "Math Score")
 
 male_fit_math_write <- lm(math_score ~ writing_score, subset = gender == "male", data = student)
-
 summary(male_fit_math_write)
 
-
 female_math_write <- lm(math_score ~ writing_score, subset = gender == "female", data = student)
-
 summary(female_math_write)
 
-
-
-Exam Score Prediction Models
-
-#Multiple linear regression model with writing score as the dependent variable and gender, test prep, and gender as the explanatory variables.
-test_fit_writing_read <- lm(writing_score ~ gender + reading_score + gender + test_prep_course, data = student)
-#Prints the summary of the linear regression model.
+# Exam Score Prediction Models
+test_fit_writing_read <- lm(writing_score ~ gender + reading_score + test_prep_course, data = student)
 summary(test_fit_writing_read)
 
-
-#Prediction model using the linear regression model. 
 predict_test_writing_read <- predict(test_fit_writing_read, interval = "prediction")
-
-
-#Data frame comparing the prediction model's writing score to the actual writing score. 
 actual_pred_test_1 <- data.frame(cbind(prediction = predict_test_writing_read, actual = student$writing_score))
-#Lists the first 10 prediction's fit prediction and confidence interval (lwr and upr) and compares the values to the actual writing score. 
 head(actual_pred_test_1, 10)
-
-#Views the correlation between the prediction model and the actual model. 
 cor(actual_pred_test_1)
 
-
-#Initializes number generator.
 set.seed(123)
-#New sample created for the training and testing data sets. The data is split with 75% in training and 25% in testing.
 sample <- sample(c(TRUE, FALSE), nrow(student), replace = TRUE, prob = c(0.75, 0.25))
 train <- student[sample, ]
 test <- student[!sample, ]
 
-
-#Multiple linear regression model with writing score as the dependent variable and gender, test prep, and gender as the explanatory variables.
 lm_practice <- lm(formula = writing_score ~ gender + reading_score + test_prep_course, data = train)
-#Prediction model using the linear regression model. 
 lm_predict <- predict(lm_practice, newdata = test)
-#Data frame comparing the prediction model's writing score to the actual writing score.
 actual_pred_1 <- data.frame(cbind(prediction = lm_predict, actual = test$writing_score))
-#Lists 10 predictions of the fit prediction model and compares the values to the actual writing score.  
 head(actual_pred_1, 10)
-
-
-#Views the correlation between the prediction model and the actual model. 
 cor(actual_pred_1)
 
 
 
+# -----------------CGPA and Package Analysis-------------------
 
 
 
-
-
-
-
-
-
-
-
-
-
-
---------------CGPA VS PACKAGE------------------
-
-cgpa and package: 
-
-# Clean the data
 student_cleaned <- student %>%
   filter(!is.na(cgpa) & !is.na(package))
 
-# Additional data cleaning steps can be performed here if needed
-
-
-
-
-# Create the summary table
 summary_table <- student %>%
   group_by(gender) %>%
   summarize(cgpa_mean = mean(cgpa, na.rm = TRUE),
@@ -362,18 +294,12 @@ summary_table <- student %>%
 
 summary_table
 
-
-
-
-
-# Histogram for CGPA....DISTRIBUTION OF CGPA BETWEEN GENDER
 ggplot(student, aes(x = cgpa)) +
   geom_histogram(aes(color = gender, fill = gender), position = "identity", binwidth = 0.5, alpha = 0.4) +
   scale_color_manual(values = c("#00AFBB", "#E7B800")) +
   scale_fill_manual(values = c("#00AFBB", "#E7B800")) +
   labs(title = "Distribution of CGPA Between Gender", x = "CGPA", y = "Total Count")
 
-# Histogram for Package.....DISTRIBUTION OF PACKAGE BETWEEN GENDER 
 ggplot(student, aes(x = package)) +
   geom_histogram(aes(color = gender, fill = gender), position = "identity", binwidth = 1, alpha = 0.4) +
   scale_color_manual(values = c("#00AFBB", "#E7B800")) +
@@ -381,76 +307,23 @@ ggplot(student, aes(x = package)) +
   labs(title = "Distribution of Package Between Gender", x = "Package", y = "Total Count")
 
 
-
-
-
-
-
-
-
-# Create the summary table for test preparation and lunch with cgpa and package.
-summary_table <- student %>%
-  group_by(test.preparation.course , lunch) %>%
-  summarize(cgpa_mean = mean(cgpa, na.rm = TRUE),
-            package_mean = mean(package, na.rm = TRUE),
-            cgpa_sd = sd(cgpa),
-            package_sd = sd(package))
-
-summary_table
-
-
-
-# Histogram of CGPA by Package groups
-ggplot(student_cleaned, aes(x = cgpa)) +
-  geom_histogram(aes(fill = cut(package, breaks = c(0, 30, 40, 50, Inf))),
-                 binwidth = 1, alpha = 0.6) +
-  scale_fill_manual(values = c("#FF6F61", "#5DA5DA", "#B3DE69", "#FDCDAC")) +
-  labs(title = "CGPA Distribution by Package Groups",
-       x = "CGPA",
-       y = "Count")
-
-# Boxplot of CGPA by Gender
-ggplot(student_cleaned, aes(x = gender, y = cgpa, fill = gender)) +
-  geom_boxplot() +
-  labs(title = "CGPA by Gender",
-       x = "Gender",
-       y = "CGPA")
-
-# Barplot of Average CGPA by Lunch
-cgpa_avg_lunch <- student_cleaned %>%
-  group_by(lunch) %>%
-  summarize(avg_cgpa = mean(cgpa))
-
-ggplot(cgpa_avg_lunch, aes(x = lunch, y = avg_cgpa, fill = lunch)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Average CGPA by Lunch",
-       x = "Lunch",
-       y = "Average CGPA")
-
-# Additional graphs for different groups can be added here
-
-
-
-
-
-# Split the data into training and testing sets
-set.seed(42)  # For reproducibility
+# Model training and evaluation
+set.seed(42)
 train_indices <- sample(1:nrow(student_cleaned), 0.7 * nrow(student_cleaned))
 train_data <- student_cleaned[train_indices, ]
 test_data <- student_cleaned[-train_indices, ]
 
-# Train the linear regression model
-model <- lm(cgpa ~ gender + lunch + test.preparation.course + math.score, data = train_data)
+set.seed(42)
+train_indices <- createDataPartition(student$package_score, p = 0.7, list = FALSE)
+train_data <- student[train_indices, ]
+test_data <- student[-train_indices, ]
 
-# Make predictions on the test data
+# Model Training
+model <- lm(package ~ cgpa, data = train_data)
+
+# Model Evaluation
 predictions <- predict(model, newdata = test_data)
+mse <- mean((predictions - test_data$package_score)^2)
 
-# Evaluate the model performance (e.g., using mean squared error)
-mse <- mean((predictions - test_data$cgpa)^2)
-
-
-
-
-
-
------------------END OF CODE-----------------
+# Model Summary
+summary(model)

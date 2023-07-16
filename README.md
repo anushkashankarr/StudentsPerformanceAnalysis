@@ -20,23 +20,13 @@ The Student Performance Analysis in R project focuses on examining the relations
 
 To run this project locally, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/your_username/student-performance-analysis.git`
-2. Change into the project directory: `cd student-performance-analysis`
-3. Install the required dependencies by executing: `Rscript install_dependencies.R`
+1. Clone the repository: `git clone https://github.com/anushkashankarr/StudentsPerformanceAnalysis.git`
+2. Change into the project directory: `cd StudentsPerformanceAnalysis`
 
-## Usage
-
-To use this project, follow these steps:
-
-1. Ensure you have completed the installation steps mentioned above.
-2. Place the dataset file (in CSV format) in the `data` directory.
-3. Open the main script file, `analysis.R`, in your preferred R development environment.
-4. Customize the analysis by modifying the script according to your requirements.
-5. Run the `analysis.R` script.
 
 ## Data
 
-The dataset used in this project contains information about various factors that may influence student performance, such as demographics, family background, study habits, and test scores. The dataset is provided as a CSV file named `student_data.csv` in the `data` directory.
+The dataset used in this project contains information about various factors that may influence student performance, such as demographics, family background, study habits, and test scores. The dataset is provided as a CSV file named `students_data.csv` in the `data` directory.
 
 Make sure the dataset is in the correct format, with each column representing a variable and each row representing a student's record.
 
@@ -48,14 +38,5 @@ The script provides several functions to load the dataset, preprocess the data, 
 
 ## Results
 
-The results of the analysis are presented in various formats, including visualizations and summary statistics. These outcomes provide insights into the relationships between different variables and student performance.
+The results of the analysis are presented in various formats, including visualizations and summary statistics. These outcomes provide insights into the relationships between different variables and student performance. 
 
-Feel free to modify the script to generate additional output or customize the reporting format as needed.
-
-## Contributing
-
-Contributions to this project are welcome! If you find any issues or have suggestions for improvements, please submit an issue or a pull request.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE). Feel free to modify and use the code according to the terms of the license.

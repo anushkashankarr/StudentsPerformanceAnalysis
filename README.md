@@ -9,8 +9,6 @@ This project is aimed at analyzing student performance using the R programming l
 - [Data](#data)
 - [Analysis](#analysis)
 - [Results](#results)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Introduction
 

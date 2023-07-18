@@ -1,3 +1,4 @@
+
 # Split the data into training and testing sets
 set.seed(123)
 sample <- sample(c(TRUE, FALSE), nrow(student), replace = TRUE, prob = c(0.75, 0.25))
@@ -7,8 +8,23 @@ test <- student[!sample, ]
 # Train a linear regression model using the training data
 lm_package <- lm(package ~ cgpa, data = train)
 
-# Summary of the model
-summary(lm_package)
-
 # Make predictions using the test data
 predictions <- predict(lm_package, newdata = test)
+
+# Evaluation
+# Mean Squared Error (MSE)
+mse <- mean((predictions - test$package)^2)
+
+# Root Mean Squared Error (RMSE)
+rmse <- sqrt(mse)
+
+# R-squared (R²)
+actual_values <- test$package
+ss_residual <- sum((actual_values - predictions)^2)
+ss_total <- sum((actual_values - mean(actual_values))^2)
+r_squared <- 1 - (ss_residual / ss_total)
+
+# Print the evaluation metrics
+cat("Mean Squared Error (MSE):", mse, "\n")
+cat("Root Mean Squared Error (RMSE):", rmse, "\n")
+cat("R-squared (R²):", r_squared, "\n")

@@ -1,0 +1,14 @@
+# Split the data into training and testing sets
+set.seed(123)
+sample <- sample(c(TRUE, FALSE), nrow(student), replace = TRUE, prob = c(0.75, 0.25))
+train <- student[sample, ]
+test <- student[!sample, ]
+
+# Train a linear regression model using the training data
+lm_package <- lm(package ~ cgpa, data = train)
+
+# Summary of the model
+summary(lm_package)
+
+# Make predictions using the test data
+predictions <- predict(lm_package, newdata = test)
